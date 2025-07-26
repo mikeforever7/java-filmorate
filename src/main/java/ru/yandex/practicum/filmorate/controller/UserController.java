@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -28,11 +29,11 @@ public class UserController {
     public User createUser(@Valid @RequestBody User user) {
         log.info("Добавляеем нового пользователя");
         if (user.getLogin().contains(" ")) {
-            log.debug("Проверка логина на корректность");
+            log.debug("В логине содержатся пробелы {}", user.getLogin());
             throw new ValidationException("Логин не должен содержать пробелы");
         }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Если не указано имя, именем становится логин");
+        if (!StringUtils.hasText(user.getName())) {
+            log.info("Если не указано имя, именем становится логин {}", user.getLogin());
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
@@ -43,31 +44,31 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        log.info("Обновлеям данные пользователя");
+        log.info("Пробуем обновить данные пользователя на {}", newUser);
         if (newUser.getId() == 0) {
-            log.debug("id = 0 или не корректен");
+            log.debug("id не корректен");
             throw new ValidationException("Должен быть указан корректный id");
         }
-        if (users.containsKey(newUser.getId())) {
-            log.debug("id найден");
+        if (exists(newUser)) {
+            log.debug("id={} найден", newUser.getId());
             User oldUser = users.get(newUser.getId());
-            log.debug("Обновляем email");
+            log.debug("Обновляем email на {}", newUser.getEmail());
             oldUser.setEmail(newUser.getEmail());
-            log.debug("Обновляем логин");
+            log.debug("Обновляем логин на {}", newUser.getLogin());
             oldUser.setLogin(newUser.getLogin());
-            if (newUser.getName() == null || newUser.getName().isBlank()) {
-                log.info("Если имя пустое, именем становится логин");
+            if (!StringUtils.hasText(newUser.getName())) {
+                log.info("Если имя пустое, именем становится логин {}", newUser.getLogin());
                 oldUser.setName(newUser.getLogin());
             } else {
-                log.debug("Обновляем имя");
+                log.debug("Обновляем имя на {}", newUser.getName());
                 oldUser.setName(newUser.getName());
             }
-            log.debug("Обновляем дату рождения");
+            log.debug("Обновляем дату рождения на {}", newUser.getBirthday());
             oldUser.setBirthday(newUser.getBirthday());
             log.info("Пользователь {} обновлен", oldUser);
             return oldUser;
         } else {
-            log.debug("id не найден");
+            log.debug("Пользователль с id={} не найден", newUser.getId());
             throw new NotFoundException("Пользователя с id=" + newUser.getId() + " не найдено");
         }
     }
@@ -81,5 +82,8 @@ public class UserController {
         return ++currentMaxId;
     }
 
+    private boolean exists(User newUser) {
+        return users.containsValue(newUser);
+    }
 
 }

@@ -27,9 +27,9 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        log.info("Добавляеем новый фильм");
+        log.info("Добавляеем новый фильм {}", film);
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.debug("Проверка даты релиза фильма");
+            log.debug("Дата релиза фильма не верна - {}", film.getReleaseDate());
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
         film.setId(getNextId());
@@ -40,30 +40,30 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film newFilm) {
-        log.info("Обновляем фильм");
+        log.info("Пробуем обновить фильм на {}", newFilm);
         if (newFilm.getId() == 0) {
-            log.debug("id = 0 или не корректен");
+            log.debug("id не корректен");
             throw new ValidationException("Должен быть указан корректный id");
         }
-        if (films.containsKey(newFilm.getId())) {
-            log.debug("id найден");
+        if (exists(newFilm)) {
+            log.debug("id найден, id={}", newFilm.getId());
             Film oldFilm = films.get(newFilm.getId());
-            log.debug("Обновляем название");
+            log.debug("Обновляем название на {}", newFilm.getName());
             oldFilm.setName(newFilm.getName());
             log.debug("Обновляем описание");
             oldFilm.setDescription(newFilm.getDescription());
             if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-                log.debug("Проверка новой даты релиза фильма");
+                log.debug("Невозможноая дата релиза {}", newFilm.getReleaseDate());
                 throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
             }
-            log.debug("Обновляем дату");
+            log.debug("Обновляем дату на {}", newFilm.getReleaseDate());
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            log.debug("Обновляем длительность");
+            log.debug("Обновляем длительность на {}", newFilm.getDuration());
             oldFilm.setDuration(newFilm.getDuration());
             log.info("Обновлен фильм {}", oldFilm);
             return oldFilm;
         } else {
-            log.debug("id не найден");
+            log.debug("Фильм с id={} не найден", newFilm.getId());
             throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
         }
     }
@@ -76,6 +76,10 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    private boolean exists(Film newFilm) {
+        return films.containsValue(newFilm);
     }
 
 }

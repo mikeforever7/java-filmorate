@@ -39,7 +39,7 @@ public class UserService {
     public User createUser(User user) {
         log.info("Добавляеем нового пользователя");
         if (user.getLogin().contains(" ")) {
-            log.debug("В логине содержатся пробелы {}", user.getLogin());
+            log.warn("В логине содержатся пробелы {}", user.getLogin());
             throw new ValidationException("Логин не должен содержать пробелы");
         }
         if (!StringUtils.hasText(user.getName())) {
@@ -49,14 +49,14 @@ public class UserService {
         user.setId(getNextId());
         user.setFriends(new HashSet<>());
         userStorage.addUser(user);
-        log.info("Пользователь {} добавлен", user);
+        log.info("Пользователь c id={} добавлен", user.getId());
         return user;
     }
 
     public User updateUser(User newUser) {
         log.info("Пробуем обновить данные пользователя на {}", newUser);
         if (newUser.getId() == 0) {
-            log.debug("id не корректен");
+            log.warn("id не корректен");
             throw new ValidationException("Должен быть указан корректный id");
         }
         if (exists(newUser)) {
@@ -75,16 +75,15 @@ public class UserService {
             }
             log.debug("Обновляем дату рождения на {}", newUser.getBirthday());
             oldUser.setBirthday(newUser.getBirthday());
-            log.info("Пользователь {} обновлен", oldUser);
+            log.info("Пользователь с id={} обновлен", oldUser.getId());
             return oldUser;
         } else {
-            log.debug("Пользователль с id={} не найден", newUser.getId());
+            log.warn("Пользователль с id={} не найден", newUser.getId());
             throw new NotFoundException("Пользователя с id=" + newUser.getId() + " не найдено");
         }
     }
 
     public Set<User> getUserFriends(long userId) {
-        Set<User> users = new HashSet<>();
         User user = getUserById(userId);
         return user.getFriends().stream()
                 .map(this::getUserById)
@@ -102,15 +101,17 @@ public class UserService {
         user.getFriends().add(friendId);
         User otherUser = getUserById(friendId);
         otherUser.getFriends().add(userId);
+        log.info("Юзеры id={} и id={} добавлены друг другу в друзья", userId, friendId);
     }
 
     public void deleteFriend(long userId, long friendId) {
         log.debug("Удаляем у юзера с Id={} друга с Id={}", userId, friendId);
         User user = getUserById(userId);
         user.getFriends().remove(friendId);
-        log.debug("Также удаляем у юзера с Id={} друга с Id={}", friendId, user);
+        log.debug("Также удаляем у юзера с Id={} друга с Id={}", friendId, userId);
         User otherUser = getUserById(friendId);
         otherUser.getFriends().remove(userId);
+        log.info("Юзеры id={} и id={} удалены друг у друга из друзей", userId, friendId);
     }
 
     public long getNextId() {

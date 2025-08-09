@@ -8,6 +8,8 @@ public interface FilmStorage {
 
     Collection<Film> getAllFilms();
 
+    Collection<Film> getMostPopularFilms(int count);
+
     Film getFilmById(long id);
 
     void addFilm(Film film);
@@ -15,4 +17,5 @@ public interface FilmStorage {
     long getNextId();
 
     boolean exists(Film newFilm);
+
 }

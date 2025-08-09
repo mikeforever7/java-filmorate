@@ -15,6 +15,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
+    public Collection<Film> getMostPopularFilms(int count) {
+        return films.values().stream()
+                .sorted((film1, film2) -> {
+                    int likes1 = film1.getLikes().size();
+                    int likes2 = film2.getLikes().size();
+                    return Integer.compare(likes2, likes1);
+                })
+                .limit(count)
+                .toList();
+    }
+
     public Film getFilmById(long id) {
         return films.get(id);
     }

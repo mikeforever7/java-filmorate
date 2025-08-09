@@ -12,13 +12,12 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private static final LocalDate START_DATE = LocalDate.of(1895, 12, 28);
     private static final Logger log = LoggerFactory.getLogger(FilmService.class);
 
     @Autowired
@@ -41,22 +40,22 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        log.info("Добавляеем новый фильм {}", film);
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.debug("Дата релиза фильма не верна - {}", film.getReleaseDate());
-            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+        log.info("Пытаемся добавить новый фильм {}", film);
+        if (film.getReleaseDate().isBefore(START_DATE)) {
+            log.warn("Дата релиза фильма не верна - {}", film.getReleaseDate());
+            throw new ValidationException("дата релиза — не раньше: " + START_DATE);
         }
         film.setId(getNextId());
         film.setLikes(new HashSet<>());
         filmStorage.addFilm(film);
-        log.info("Добавлен фильм {}", film);
+        log.info("Добавлен фильм с id={}", film.getId());
         return film;
     }
 
     public Film updateFilm(Film newFilm) {
         log.info("Пробуем обновить фильм на {}", newFilm);
         if (newFilm.getId() == 0) {
-            log.debug("id не корректен");
+            log.warn("id не корректен");
             throw new ValidationException("Должен быть указан корректный id");
         }
         if (exists(newFilm)) {
@@ -74,39 +73,32 @@ public class FilmService {
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
             log.debug("Обновляем длительность на {}", newFilm.getDuration());
             oldFilm.setDuration(newFilm.getDuration());
-            log.info("Обновлен фильм {}", oldFilm);
+            log.info("Фильм с id={} успешно обновлен", oldFilm.getId());
             return oldFilm;
         } else {
-            log.debug("Фильм с id={} не найден", newFilm.getId());
+            log.warn("Фильм с id={} не найден", newFilm.getId());
             throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
         }
     }
 
     public void addLike(long filmId, long userId) {
-        log.debug("Пробуем добавить лайк к фильму {} от юзера {}", filmId, userId);
+        log.info("Пробуем добавить лайк к фильму {} от юзера {}", filmId, userId);
         Film film = getFilmById(filmId);
         userService.getUserById(userId); //Для проверки наличия
         film.getLikes().add(userId);
-        log.debug("Лайк успешно добавлен {}", film);
+        log.info("Лайк от юзера с id= {} для фильма с id={} успешно добавлен", userId, filmId);
     }
 
     public void deleteLike(long filmId, long userId) {
-        log.debug("Пробуем удалить лайк к фильму {} от юзера {}", filmId, userId);
+        log.info("Пробуем удалить лайк к фильму {} от юзера {}", filmId, userId);
         Film film = getFilmById(filmId);
         userService.getUserById(userId); //Для проверки наличия
         film.getLikes().remove(userId);
-        log.debug("Лайк успешно удален {}", film);
+        log.info("Лайк от юзера с id= {} для фильма с id={} успешно удален", userId, filmId);
     }
 
-    public List<Film> getMostPopularFilms(int count) {
-        return getAllFilms().stream()
-                .sorted((film1, film2) -> {
-                    int likes1 = film1.getLikes().size();
-                    int likes2 = film2.getLikes().size();
-                    return Integer.compare(likes2, likes1);
-                })
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getMostPopularFilms(int count) {
+        return filmStorage.getMostPopularFilms(count);
     }
 
     private boolean exists(Film newFilm) {

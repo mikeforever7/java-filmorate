@@ -38,7 +38,7 @@ public class FilmControllerTest {
         assertEquals("Описание", film.getDescription());
         assertEquals(LocalDate.of(1985, 12, 12), film.getReleaseDate());
         assertEquals(10, film.getDuration());
-        assertEquals(1, filmController.getAllfilms().size());
+        assertEquals(1, filmController.getAllFilms().size());
     }
 
     @Test

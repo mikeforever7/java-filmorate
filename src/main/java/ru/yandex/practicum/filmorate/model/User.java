@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
@@ -16,10 +18,8 @@ import java.time.LocalDate;
 public class User {
     private long id;
 
-    @Email
-    @NotBlank
     @Builder.Default
-    private String email = "user@yandex.ru";
+    private Set<Long> friends = new HashSet<>();
 
     @NotNull
     @NotBlank
@@ -28,6 +28,11 @@ public class User {
 
     @Builder.Default
     private String name = "name";
+
+    @Email
+    @NotBlank
+    @Builder.Default
+    private String email = "user@yandex.ru";
 
     @NotNull
     @Past

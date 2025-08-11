@@ -1,89 +1,65 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final Map<Long, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable long id) {
+        return userService.getUserById(id);
+    }
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        log.info("Возвращаем коллекцию пользователей");
-        return users.values();
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}/friends")
+    public Set<User> getUserFriends(@PathVariable long id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        log.info("Добавляеем нового пользователя");
-        if (user.getLogin().contains(" ")) {
-            log.debug("В логине содержатся пробелы {}", user.getLogin());
-            throw new ValidationException("Логин не должен содержать пробелы");
-        }
-        if (!StringUtils.hasText(user.getName())) {
-            log.info("Если не указано имя, именем становится логин {}", user.getLogin());
-            user.setName(user.getLogin());
-        }
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        log.info("Пользователь {} добавлен", user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        log.info("Пробуем обновить данные пользователя на {}", newUser);
-        if (newUser.getId() == 0) {
-            log.debug("id не корректен");
-            throw new ValidationException("Должен быть указан корректный id");
-        }
-        if (exists(newUser)) {
-            log.debug("id={} найден", newUser.getId());
-            User oldUser = users.get(newUser.getId());
-            log.debug("Обновляем email на {}", newUser.getEmail());
-            oldUser.setEmail(newUser.getEmail());
-            log.debug("Обновляем логин на {}", newUser.getLogin());
-            oldUser.setLogin(newUser.getLogin());
-            if (!StringUtils.hasText(newUser.getName())) {
-                log.info("Если имя пустое, именем становится логин {}", newUser.getLogin());
-                oldUser.setName(newUser.getLogin());
-            } else {
-                log.debug("Обновляем имя на {}", newUser.getName());
-                oldUser.setName(newUser.getName());
-            }
-            log.debug("Обновляем дату рождения на {}", newUser.getBirthday());
-            oldUser.setBirthday(newUser.getBirthday());
-            log.info("Пользователь {} обновлен", oldUser);
-            return oldUser;
-        } else {
-            log.debug("Пользователль с id={} не найден", newUser.getId());
-            throw new NotFoundException("Пользователя с id=" + newUser.getId() + " не найдено");
-        }
+        return userService.updateUser(newUser);
     }
 
     private long getNextId() {
-        log.info("Генеринуем новый id");
-        long currentMaxId = users.keySet()
-                .stream().mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
-
-    private boolean exists(User newUser) {
-        return users.containsValue(newUser);
+        return userService.getNextId();
     }
 
 }

@@ -1,3 +1,3 @@
 # java-filmorate
 Template repository for Filmorate project.
-![ER Diagram](untitled.png)
+![ER Diagram](Untitled.png)

@@ -15,6 +15,8 @@ import java.util.Set;
 public class Film {
     private long id;
 
+    private MpaRating rating;
+
     @Builder.Default
     private Set<Long> likes = new HashSet<>();
 

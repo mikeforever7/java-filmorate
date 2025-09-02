@@ -58,8 +58,4 @@ public class UserController {
         return userService.updateUser(newUser);
     }
 
-    private long getNextId() {
-        return userService.getNextId();
-    }
-
 }

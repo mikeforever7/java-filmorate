@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -15,11 +16,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+
     private final UserStorage userStorage;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("inMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -46,7 +48,6 @@ public class UserService {
             log.info("Если не указано имя, именем становится логин {}", user.getLogin());
             user.setName(user.getLogin());
         }
-        user.setId(getNextId());
         user.setFriends(new HashSet<>());
         userStorage.addUser(user);
         log.info("Пользователь c id={} добавлен", user.getId());
@@ -112,11 +113,6 @@ public class UserService {
         User otherUser = getUserById(friendId);
         otherUser.getFriends().remove(userId);
         log.info("Юзеры id={} и id={} удалены друг у друга из друзей", userId, friendId);
-    }
-
-    public long getNextId() {
-        log.info("Генеринуем новый id");
-        return userStorage.getNextId();
     }
 
     private boolean exists(User newUser) {

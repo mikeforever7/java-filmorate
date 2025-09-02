@@ -9,9 +9,7 @@ public interface UserStorage {
 
     User getUserById(long id);
 
-    void addUser(User user);
-
-    long getNextId();
+    User addUser(User user);
 
     boolean exists(User newUser);
 }

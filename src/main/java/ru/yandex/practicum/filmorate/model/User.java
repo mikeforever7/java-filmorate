@@ -16,7 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(of = {"id"})
 @Builder
 public class User {
-    private long id;
+    private Long id;
 
     @Builder.Default
     private Set<Long> friends = new HashSet<>();

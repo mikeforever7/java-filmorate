@@ -13,7 +13,7 @@ import java.util.Set;
 @EqualsAndHashCode(of = {"id"})
 @Builder
 public class Film {
-    private long id;
+    private Long id;
 
     private MpaRating rating;
 

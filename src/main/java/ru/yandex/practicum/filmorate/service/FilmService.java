@@ -45,7 +45,6 @@ public class FilmService {
             log.warn("Дата релиза фильма не верна - {}", film.getReleaseDate());
             throw new ValidationException("дата релиза — не раньше: " + START_DATE);
         }
-        film.setId(getNextId());
         film.setLikes(new HashSet<>());
         filmStorage.addFilm(film);
         log.info("Добавлен фильм с id={}", film.getId());
@@ -105,8 +104,4 @@ public class FilmService {
         return filmStorage.exists(newFilm);
     }
 
-    public long getNextId() {
-        log.info("Генеринуем новый id");
-        return filmStorage.getNextId();
-    }
 }

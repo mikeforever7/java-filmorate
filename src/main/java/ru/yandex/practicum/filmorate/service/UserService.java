@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -21,6 +20,7 @@ public class UserService {
     private final UserStorage userStorage;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    //userDbStorage inMemoryUserStorage
     @Autowired
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
@@ -73,7 +73,6 @@ public class UserService {
         if (newUser.getBirthday() != null) {
             validateBirthday(newUser.getBirthday());
         }
-
         return userStorage.updateUser(newUser);
     }
 
@@ -92,7 +91,7 @@ public class UserService {
         log.info("Пользователь {} добавляет в друзья пользователя {}", userId, friendId);
         User user = getUserById(userId);
         getUserById(friendId);
-        userStorage.addFriend(user,friendId);
+        userStorage.addFriend(user, friendId);
         log.info("Юзер id={} добавлен юзеру id={} в друзья", friendId, userId);
     }
 

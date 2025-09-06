@@ -34,11 +34,12 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
+        log.info("Пытаемся создать фильм {}", film);
         return filmService.createFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film newFilm) {
+    public Film updateFilm(@RequestBody Film newFilm) {
         return filmService.updateFilm(newFilm);
     }
 

@@ -1,41 +1,32 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
-@Builder
 public class Film {
     private Long id;
-
-    private MpaRating rating;
-
-    @Builder.Default
+    private MpaRating mpa;
+    private List<Genre> genres = new ArrayList<>();
     private Set<Long> likes = new HashSet<>();
 
     @NotNull
     @NotBlank
-    @Builder.Default
-    private String name = "Название";
+    private String name;
 
     @NotNull
     @Size(max = 200)
-    @Builder.Default
-    private String description = "Описание";
+    private String description;
 
     @NotNull
-    @Builder.Default
-    private LocalDate releaseDate = LocalDate.of(1985, 12, 12);
+    private LocalDate releaseDate;
 
     @NotNull
     @Positive
-    @Builder.Default
-    private int duration = 10;
+    private Integer duration;
 }

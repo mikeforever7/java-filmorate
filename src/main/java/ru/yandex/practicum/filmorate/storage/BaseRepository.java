@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
+
 import java.sql.PreparedStatement;
 
 import java.sql.Statement;
@@ -26,8 +27,21 @@ public class BaseRepository<T> {
         }
     }
 
+    protected <R> Optional<R> findOneWithMapper(String query, RowMapper<R> customMapper, Object... params) {
+        try {
+            R result = jdbc.queryForObject(query, customMapper, params);
+            return Optional.ofNullable(result);
+        } catch (EmptyResultDataAccessException ignored) {
+            return Optional.empty();
+        }
+    }
+
     protected List<T> findMany(String query, Object... params) {
         return jdbc.query(query, mapper, params);
+    }
+
+    protected <R> List<R> findManyWithMapper(String query, RowMapper<R> customMapper, Object... params) {
+        return jdbc.query(query, customMapper, params);
     }
 
     protected long insert(String query, Object... params) {
@@ -38,9 +52,9 @@ public class BaseRepository<T> {
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
-            return ps;}, keyHolder);
+            return ps;
+        }, keyHolder);
         Long id = keyHolder.getKeyAs(Long.class);
-        // Возвращаем id нового пользователя
         if (id != null) {
             return id;
         } else {
@@ -49,9 +63,7 @@ public class BaseRepository<T> {
     }
 
     protected void delete(String query, Object... params) {
-       // int rowsDeleted =
-                jdbc.update(query, params);
-       // return rowsDeleted > 0;
+        jdbc.update(query, params);
     }
 
     protected void update(String query, Object... params) {

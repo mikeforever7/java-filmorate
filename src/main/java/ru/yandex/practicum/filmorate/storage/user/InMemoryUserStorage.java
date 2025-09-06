@@ -37,15 +37,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User newUser){
+    public User updateUser(User newUser) {
         User oldUser = users.get(newUser.getId());
         if (newUser.getEmail() != null) {
             log.debug("Обновляем email на {}", newUser.getEmail());
             oldUser.setEmail(newUser.getEmail());
         }
         if (newUser.getLogin() != null) {
-        log.debug("Обновляем логин на {}", newUser.getLogin());
-        oldUser.setLogin(newUser.getLogin());
+            log.debug("Обновляем логин на {}", newUser.getLogin());
+            oldUser.setLogin(newUser.getLogin());
         }
         if (newUser.getName() != null && !newUser.getName().trim().isEmpty()) {
             log.debug("Обновляем имя на {}", newUser.getName());
@@ -57,7 +57,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         log.info("Пользователь с id={} обновлен", oldUser.getId());
 
-        users.put(oldUser.getId(),oldUser);
+        users.put(oldUser.getId(), oldUser);
         return oldUser;
     }
 

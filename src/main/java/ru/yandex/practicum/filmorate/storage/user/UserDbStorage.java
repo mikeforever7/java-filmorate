@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public class UserDbStorage extends BaseRepository<User> implements UserStorage  {
+public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_ALL_FRIENDS_QUERY =
             "SELECT u.* FROM users AS u JOIN user_friends AS uf ON u.id = uf.friend_id WHERE uf.user_id = ?";
@@ -58,7 +58,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage  
     }
 
     @Override
-    public User updateUser(User user){
+    public User updateUser(User user) {
         update(UPDATE_QUERY,
                 user.getLogin(),
                 user.getName(),
@@ -75,7 +75,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage  
 
     @Override
     public void deleteFriend(User user, long friendId) {
-        delete(DELETE_FRIEND_QUERY, user.getId(),friendId);
+        delete(DELETE_FRIEND_QUERY, user.getId(), friendId);
     }
 
     @Override

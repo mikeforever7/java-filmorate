@@ -137,6 +137,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     try {
                         insert(INSERT_FILM_GENRE_QUERY, filmId, genre.getId());
                     } catch (DataAccessException e) {
+                        continue;
                     }
                 }
             }

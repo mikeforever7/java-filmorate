@@ -90,8 +90,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     @Override
     public Optional<Film> getFilmById(long filmId) {
-        return findOne(FIND_BY_ID_QUERY, filmId).map(film ->
-        {
+        return findOne(FIND_BY_ID_QUERY, filmId).map(film -> {
             loadMpaAndGenresForFilm(film);
             loadLikesForFilm(film);
             return film;

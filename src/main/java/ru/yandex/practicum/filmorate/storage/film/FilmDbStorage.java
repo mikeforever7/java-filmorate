@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -40,7 +39,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id)" +
             "VALUES (?, ?, ?, ?, ?)";
-    private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)";
+    private static final String BATCH_INSERT_FILM_GENRE_QUERY = "MERGE INTO film_genres (film_id, genre_id) " +
+            "KEY (film_id, genre_id) " +
+            "VALUES (?, ?)";
     private static final String UPDATE_QUERY =
             "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ?  WHERE id = ?";
     private static final String CHECK_EXISTS_QUERY = "SELECT EXISTS(SELECT 1 FROM films WHERE id = ?)";
@@ -89,12 +90,12 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     @Override
     public Optional<Film> getFilmById(long filmId) {
-        Optional<Film> film = findOne(FIND_BY_ID_QUERY, filmId);
-        if (film.isPresent()) {
-            loadMpaAndGenresForFilm(film.get());
-            loadLikesForFilm(film.get());
-        }
-        return film;
+        return findOne(FIND_BY_ID_QUERY, filmId).map(film ->
+        {
+            loadMpaAndGenresForFilm(film);
+            loadLikesForFilm(film);
+            return film;
+        });
     }
 
     @Override
@@ -131,17 +132,15 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     private void addGenres(long filmId, List<Genre> genres) {
+        List<Object[]> batch = new ArrayList<>();
         if (genres != null) {
             for (Genre genre : genres) {
-                if (isGenreExists(genre.getId())) {
-                    try {
-                        insert(INSERT_FILM_GENRE_QUERY, filmId, genre.getId());
-                    } catch (DataAccessException e) {
-                        continue;
-                    }
+                if (genre.getId() != null) {
+                    batch.add(new Object[]{filmId, genre.getId()});
                 }
             }
         }
+        jdbc.batchUpdate(BATCH_INSERT_FILM_GENRE_QUERY, batch);
     }
 
     @Override

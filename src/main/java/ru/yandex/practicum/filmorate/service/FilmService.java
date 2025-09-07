@@ -50,11 +50,7 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        Optional<Film> film = filmStorage.getFilmById(id);
-        if (film.isEmpty()) {
-            throw new NotFoundException("Фильм с ID " + id + " не найден");
-        }
-        return film.get();
+        return filmStorage.getFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с ID " + id + " не найден"));
     }
 
     public MpaRating getMpaById(long id) {

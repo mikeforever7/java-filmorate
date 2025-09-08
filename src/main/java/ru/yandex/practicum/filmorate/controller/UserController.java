@@ -54,12 +54,8 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User newUser) {
+    public User updateUser(@RequestBody User newUser) {
         return userService.updateUser(newUser);
-    }
-
-    private long getNextId() {
-        return userService.getNextId();
     }
 
 }

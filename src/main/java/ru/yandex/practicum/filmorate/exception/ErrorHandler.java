@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,6 +26,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValid(final MethodArgumentNotValidException e) {
         return new ErrorResponse("Нарушены правила валидации");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHttpMessageNotReadable(final HttpMessageNotReadableException e) {
+        return new ErrorResponse("Некорректный формат данных. Проверьте, что все числовые поля содержат числа.");
     }
 
     @ExceptionHandler

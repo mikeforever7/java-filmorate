@@ -4,9 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -14,28 +12,21 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
-@Builder
 public class User {
-    private long id;
-
-    @Builder.Default
+    private Long id;
     private Set<Long> friends = new HashSet<>();
 
     @NotNull
     @NotBlank
-    @Builder.Default
-    private String login = "user";
+    private String login;
 
-    @Builder.Default
-    private String name = "name";
+    private String name;
 
     @Email
     @NotBlank
-    @Builder.Default
-    private String email = "user@yandex.ru";
+    private String email;
 
     @NotNull
     @Past
-    @Builder.Default
-    private LocalDate birthday = LocalDate.of(1985, 5, 5);
+    private LocalDate birthday;
 }
